@@ -115,10 +115,13 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
 
     class_<nuSQUIDSFlux, std::shared_ptr<nuSQUIDSFlux>, boost::noncopyable>("nuSQUIDSFlux",init<std::string>(args("Path to nusquids file")))
         ;
+    class_<PowerLawFlux, std::shared_ptr<PowerLawFlux>, boost::noncopyable>("PowerLawFlux",init<double, double, double>(args("normalization","spectral index","pivot point")))
+        ;
 
     implicitly_convertible< std::shared_ptr<ConstantFlux>, std::shared_ptr<Flux> >();
     implicitly_convertible< std::shared_ptr<nuSQUIDSAtmFlux<>>, std::shared_ptr<Flux> >();
     implicitly_convertible< std::shared_ptr<nuSQUIDSFlux>, std::shared_ptr<Flux> >();
+    implicitly_convertible< std::shared_ptr<PowerLawFlux>, std::shared_ptr<Flux> >();
 
     //========================================================//
     // Cross Section //
@@ -130,7 +133,9 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
     class_<CrossSectionFromSpline, std::shared_ptr<CrossSectionFromSpline>, boost::noncopyable>("CrossSectionFromSpline", 
             init<std::string,std::string,std::string,std::string>(args("CC diff neutrino cross section path", "CC diff antineutrino cross section path","NC diff neutrino cross section path","NC diff antineutrino cross section path")))
         ;
-
+    class_<GlashowResonanceCrossSection, std::shared_ptr<GlashowResonanceCrossSection>, boost::noncopyable>("GlashowResonanceCrossSection",no_init);
+    
+    implicitly_convertible< std::shared_ptr<GlashowResonanceCrossSection>, std::shared_ptr<CrossSection> >();
     implicitly_convertible< std::shared_ptr<CrossSectionFromSpline>, std::shared_ptr<CrossSection> >();
 
     //========================================================//
