@@ -53,6 +53,6 @@ for i,event in enumerate(h5file.root.EventProperties[:]):
     LWevent.z = event[16]
     LWevent.radius = event[15]
     LWevent.total_column_depth = event[14]
-    print weighter(LWevent)
+    print(weighter(LWevent))
 
 h5file.close()
