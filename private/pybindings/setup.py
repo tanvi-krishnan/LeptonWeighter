@@ -17,7 +17,7 @@ except KeyError:
     env_prefix="/usr/local/"
 
 if sys.platform == 'win32' or sys.platform == 'win64':
-    print 'Windows is not a supported platform.'
+    print('Windows is not a supported platform.')
     quit()
 else:
     include_dirs = [
@@ -27,10 +27,18 @@ else:
             env_prefix+'/include',
             cvmfs_env_root + "/include/",
             ]
-    libraries = [
-            'python2.7','boost_python',
-            'LeptonWeighter',
-            ]
+    if sys.version[0]=='3':
+        libraries = [
+                'python{}m'.format(sys.version[0:3]),'boost_python3',
+                'LeptonWeighter',
+                ]
+    elif sys.version[0]=='2':
+         libraries = [
+                'python{}'.format(sys.version[0:3]),'boost_python',
+                'LeptonWeighter',
+                ]
+    else:
+        raise Exception("Python version {} not supported".format(sys.version[0]))
     library_dirs = [
             '../lib/',
             '/usr/local/Cellar/python/2.7.9/Frameworks/Python.framework/Versions/2.7/lib/python2.7',
