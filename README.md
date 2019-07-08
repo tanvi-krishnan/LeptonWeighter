@@ -134,25 +134,26 @@ myfunction() {
         ```
         
 6. Build and install squids
+
    a. download the squids source
    ```
    https://github.com/jsalvado/SQuIDS/
    ```
-   b. unpack (if necessary)
-   c. configure the source code
+   b. configure the source code
    ```
    ./configure --with-gsl=$SROOT --prefix=$INSTALL
    ```
-   d. Make the source into objects 
+   c. Make the source into objects 
    ```
    make - j16
    ```
-   e. install the objects
+   d. install the objects
    ```
    make install 
    ```
         
 7. Build and install NuSquids
+
    a. download nusquids source
    ```
    https://github.com/arguelles/nuSQuIDS
@@ -170,6 +171,7 @@ myfunction() {
    make install
    ```
 8. Build and install NewNuFlux
+
     a. Download and unpack newNuFlux source. At the time of writing, there was an outstanding bug in the NewNuFlux source code, and you may need to do some tweaking of `private/pybindings/module.cxx`.
     
     b. configure the Makefile
