@@ -78,8 +78,9 @@ double GlashowResonanceCrossSection::DoubleDifferentialCrossSection(ParticleType
     using namespace nusquids;
     double GeV = 1.e9;
     double e_out = (1-y)*energy;
+    double cm2_to_m2 = 1.e-4; //convert from nuSQuIDs units to LW units!
 
-    return grxs.SingleDifferentialCrossSection(energy*GeV,e_out*GeV,
+    return cm2_to_m2*grxs.SingleDifferentialCrossSection(energy*GeV,e_out*GeV,
             NeutrinoCrossSections::electron,NeutrinoCrossSections::antineutrino,NeutrinoCrossSections::GR);
   } else {
     return 0.;
