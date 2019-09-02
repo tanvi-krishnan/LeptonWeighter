@@ -266,7 +266,7 @@ std::vector<std::shared_ptr<Generator>> MakeGeneratorsFromLICFile(std::string co
         is >> ric;
         generator_vector.push_back(std::make_shared<RangeGenerator>(RangeSimulationDetails::MakeFromRangeInjectorConfiguration(ric)));
 
-      } else if (h.block_name == "VolumeSimulationDetails"){
+      } else if (h.block_name == "VolumeInjectionConfiguration"){
         VolumeInjectionConfiguration vic;
         is >> vic;
         generator_vector.push_back(std::make_shared<VolumeGenerator>(VolumeSimulationDetails::MakeFromVolumeInjectorConfiguration(vic)));
