@@ -161,6 +161,7 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
     //========================================================//
 
     def("MakeGeneratorsFromLICFile",LW::MakeGeneratorsFromLICFile);
+    def("MakeGeneratorsFromH5File",LW::MakeGeneratorsFromH5File);
 
     //========================================================//
     // VECTOR CONVERSIONS //
