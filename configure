@@ -175,6 +175,13 @@ locations of dependencies:
 
   --with-photospline-config=BIN  Path to photospline-config executable
 
+  --with-hdf5-incdir=DIR        use the copy of HDF5 in DIR
+  --with-hdf5-libdir=DIR        use the copy of HDF5 in DIR
+  --with-hdf5=DIR               use the copy of HDF5 in DIR
+                                 assuming headers are in DIR/include
+                                 and libraries in DIR/lib
+
+
   --with-boost-incdir=DIR        use the copy of Boost in DIR
   --with-boost-libdir=DIR        use the copy of Boost in DIR
   --with-boost=DIR               use the copy of Boost in DIR
@@ -230,6 +237,18 @@ do
 	if [ "$TMP" ]; then
 		PHOTOSPLINE_CONFIG="${TMP}";
 	continue; fi
+    
+  # HDF5 #
+	TMP=`echo "$var" | sed -n 's/^--with-hdf5=\(.*\)$/\1/p'`
+	if [ "$TMP" ]; then
+		HDF5_INCDIR="${TMP}/include";
+		HDF5_LIBDIR="${TMP}/lib";
+	continue; fi
+
+	TMP=`echo "$var" | sed -n 's/^--with-hdf5-libdir=\(.*\)$/\1/p'`
+	if [ "$TMP" ]; then HDF5_LIBDIR="$TMP"; continue; fi
+	TMP=`echo "$var" | sed -n 's/^--with-hdf5-incdir=\(.*\)$/\1/p'`
+	if [ "$TMP" ]; then HDF5_INCDIR="$TMP"; continue; fi
 
   # BOOST #
 	TMP=`echo "$var" | sed -n 's/^--with-boost=\(.*\)$/\1/p'`
@@ -295,6 +314,24 @@ if [ "$NUSQUIDS_INCDIR" -a "$NUSQUIDS_LIBDIR" ]; then
 fi
 
 find_package nusquids 1.0
+
+if [ "$HDF5_INCDIR" -a "$HDF5_LIBDIR" ]; then
+	echo "Checking manually specified hdf5..."
+	if [ -d "$HDF5_INCDIR" \
+         -a -d "$HDF5_LIBDIR" \
+         -a -e "$HDF5_LIBDIR/libhdf5.a" \
+         -a -e "$HDF5_LIBDIR/libhdf5_cpp.a" ]; then
+		HDF5_FOUND=1
+		HDF5_CFLAGS="-I$HDF5_INCDIR"
+		HDF5_LDFLAGS="-L$HDF5_LIBDIR -lhdf5 -libhdf5_cpp"
+	else
+        echo "Warning: manually specifed HDF5 not found; will attempt auto detection"
+	fi
+fi
+
+find_package hdf5
+
+
 
 if [ "$PHOTOSPLINE_CONFIG" ]; then
 	echo "Checking manually specified photospline-config..."
@@ -497,6 +534,9 @@ echo "BOOST_LDFLAGS=$BOOST_LDFLAGS" >> ./Makefile
 echo "PHOTOSPLINE_CFLAGS=$PHOTOSPLINE_CFLAGS" >> ./Makefile
 echo "PHOTOSPLINE_LDFLAGS=$PHOTOSPLINE_LDFLAGS" >> ./Makefile
 
+echo "HDF5_CFLAGS=$HDF5_CFLAGS" >> ./Makefile
+echo "HDF5_LDFLAGS=$HDDF5_LDFLAGS" >> ./Makefile
+
 echo "CVMFS_CFLAGS=$CVMFS_INCDIR" >> ./Makefile
 echo "CVMFS_LDFLAGS=$CVMFS_LIBDIR" >> ./Makefile
 
@@ -506,10 +546,10 @@ INC_LW=$(PATH_LW)/public
 LIB_LW=$(PATH_LW)/lib
 
 # FLAGS
-CFLAGS= -O3 -fPIC -I$(INC_LW) $(CVMFS_CFLAGS) $(SQUIDS_CFLAGS) $(NUSQUIDS_CFLAGS) $(PHOTOSPLINE_CFLAGS) $(NEWNUFLUX_CFLAGS) $(BOOST_CFLAGS)
+CFLAGS= -O3 -fPIC -I$(INC_LW) $(CVMFS_CFLAGS) $(SQUIDS_CFLAGS) $(NUSQUIDS_CFLAGS) $(PHOTOSPLINE_CFLAGS) $(NEWNUFLUX_CFLAGS) $(BOOST_CFLAGS) $(HDF5_CFLAGS)
 
 LDFLAGS= -Wl,-rpath -Wl,$(LIB_LW) -L$(LIB_LW)
-LDFLAGS+= $(CVMFS_LDFLAGS) $(SQUIDS_LDFLAGS) $(NUSQUIDS_LDFLAGS) $(PHOTOSPLINE_LDFLAGS) $(NEWNUFLUX_LDFLAGS) $(BOOST_LDFLAGS)
+LDFLAGS+= $(CVMFS_LDFLAGS) $(SQUIDS_LDFLAGS) $(NUSQUIDS_LDFLAGS) $(PHOTOSPLINE_LDFLAGS) $(NEWNUFLUX_LDFLAGS) $(BOOST_LDFLAGS) $(HDF5_LDFLAGS)
 EXAMPLES_FLAGS=-I$(INC_LW) $(CXXFLAGS) $(CFLAGS)
 
 # Project files
