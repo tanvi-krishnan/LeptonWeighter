@@ -4,6 +4,7 @@
 #include <memory>
 #include <fstream>
 #include <cmath>
+#include <hdf5.h>
 
 //#define DEBUGPROBABILITY
 
@@ -225,6 +226,87 @@ double RangeGenerator::number_of_targets(Event& e) const {
 
 double VolumeGenerator::number_of_targets(Event& e) const {
     return Constants::Na*e.total_column_depth;
+}
+
+// this method opens an hdf5 file with a name stored at "configuration_filename",
+//  and returns a vector of Generator objects built from the information in that file! 
+#define MAX_NAME 1024
+std::vector<std::shared_ptr<Generator>> MakeGeneratorsFromH5File( std::string configuration_filename){
+    // need to convert string to const char*
+    const char * filename_ptr = configuration_filename.c_str();
+
+    // load h5 file
+    // open the file as read-only, no special flags
+    hid_t file  = H5Fopen( filename_ptr , H5F_ACC_RDONLY, H5P_DEFAULT);
+    // open up the base group
+    hid_t group = H5Gopen2( file, "LIC_Base", H5P_DEFAULT); 
+    
+    //get the number of entries in the group (number of injectors)
+    hsize_t nobj;
+    herr_t error = H5Gget_num_objs( group, &nobj);
+   
+    ssize_t len;
+    char member_name[MAX_NAME];
+    std::vector<std::shared_ptr<Generator>> generator_vector;
+    for (unsigned int config = 0; config < nobj; config++){
+        // get entry name, assign it to /member_name/
+        len                 = H5Gget_objname_by_idx( group, (hsize_t)config, member_name, (size_t)MAX_NAME);
+        // use that entry name to open the dataset: this specific injector
+        hid_t access_plist;
+        hid_t dataset       = H5Dopen2( group, member_name, H5P_DEFAULT );
+        // access the datatable 
+        hsize_t datatable   = H5Topen2( group, member_name , H5T_COMPOUND );
+        
+        // get the name of the 12th and 13th members
+        // use their identities to decide on RIC or VIC
+
+        herr_t status;
+        if (false){
+            RangedInjectionConfiguration ric; 
+
+
+            //fill in the Ranged Injection Configuration object 
+            status = H5Tget_member_value( datatable, 0, &ric.number_of_events);
+            status = H5Tget_member_value( datatable, 1, &ric.energyMin);
+            status = H5Tget_member_value( datatable, 2, &ric.energyMax);
+            status = H5Tget_member_value( datatable, 3, &ric.powerlawIndex);
+            status = H5Tget_member_value( datatable, 4, &ric.azimuthMin);
+            status = H5Tget_member_value( datatable, 5, &ric.azimuthMax);
+            status = H5Tget_member_value( datatable, 6, &ric.zenithMin);
+            status = H5Tget_member_value( datatable, 7, &ric.zenithMax);
+            status = H5Tget_member_value( datatable, 8, &ric.final_state_particle_0);
+            status = H5Tget_member_value( datatable, 9, &ric.final_state_particle_1);
+            status = H5Tget_member_value( datatable,10, &ric.differentialCrossSectionData);
+            status = H5Tget_member_value( datatable,11, &ric.totalCrossSectionData);
+            status = H5Tget_member_value( datatable,12, &ric.injectionRadius);
+            status = H5Tget_member_value( datatable,13, &ric.injectionCap);
+            generator_vector.push_back(std::make_shared<RangeGenerator>(RangeSimulationDetails::MakeFromRangeInjectorConfiguration(ric)));
+        }else{
+            VolumeInjectionConfiguration vic; 
+            //fill in the Ranged Injection Configuration object 
+            status = H5Tget_member_value( datatable, 0, &vic.number_of_events);
+            status = H5Tget_member_value( datatable, 1, &vic.energyMin);
+            status = H5Tget_member_value( datatable, 2, &vic.energyMax);
+            status = H5Tget_member_value( datatable, 3, &vic.powerlawIndex);
+            status = H5Tget_member_value( datatable, 4, &vic.azimuthMin);
+            status = H5Tget_member_value( datatable, 5, &vic.azimuthMax);
+            status = H5Tget_member_value( datatable, 6, &vic.zenithMin);
+            status = H5Tget_member_value( datatable, 7, &vic.zenithMax);
+            status = H5Tget_member_value( datatable, 8, &vic.final_state_particle_0);
+            status = H5Tget_member_value( datatable, 9, &vic.final_state_particle_1);
+            status = H5Tget_member_value( datatable,10, &vic.differentialCrossSectionData);
+            status = H5Tget_member_value( datatable,11, &vic.totalCrossSectionData);
+            status = H5Tget_member_value( datatable,12, &vic.cylinderRadius);
+            status = H5Tget_member_value( datatable,13, &vic.cylinderHeight);
+            generator_vector.push_back(std::make_shared<VolumeGenerator>(VolumeSimulationDetails::MakeFromVolumeInjectorConfiguration(vic)));
+        }
+
+        // H5Tget_member_value( datatable, entry number, where to put the value );
+
+    }
+    // Flush all the memory accumulated by the hdf5 libraries 
+    H5close();
+    return generator_vector;
 }
 
 std::vector<std::shared_ptr<Generator>> MakeGeneratorsFromLICFile(std::string configuration_filename){
