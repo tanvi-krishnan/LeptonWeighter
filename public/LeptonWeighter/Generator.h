@@ -187,6 +187,7 @@ class VolumeGenerator: public Generator {
 };
 
 std::vector<std::shared_ptr<Generator>> MakeGeneratorsFromLICFile(std::string filename);
+std::vector<std::shared_ptr<Generator>> MakeGeneratorsFromH5File(std::string filename);
 
 //std::ostream& operator<<(std::ostream& os, RangeSimulationDetails& e);
 //std::ostream& operator<<(std::ostream& os, VolumeSimulationDetails& e);
