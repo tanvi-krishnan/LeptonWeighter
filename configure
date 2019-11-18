@@ -167,11 +167,11 @@ locations of dependencies:
   --with-nusquids-incdir=DIR        use the copy of nuSQuIDS in DIR
   --with-nusquids-libdir=DIR        use the copy of nuSQuIDS in DIR
 
-  --with-newnuflux=DIR        use the copy of NewNuFlux in DIR
+  --with-nuflux=DIR        use the copy of nuflux in DIR
                            assuming headers are in DIR/include
                            and libraries in DIR/lib
-  --with-newnuflux-incdir=DIR        use the copy of NewNuFlux in DIR
-  --with-newnuflux-libdir=DIR        use the copy of NewNuFlux in DIR
+  --with-nuflux-incdir=DIR        use the copy of nuflux in DIR
+  --with-nuflux-libdir=DIR        use the copy of nuflux in DIR
 
   --with-photospline-config=BIN  Path to photospline-config executable
 
@@ -243,17 +243,17 @@ do
 	TMP=`echo "$var" | sed -n 's/^--with-boost-incdir=\(.*\)$/\1/p'`
 	if [ "$TMP" ]; then BOOST_INCDIR="$TMP"; continue; fi
 
-  # NEWNUFLUX #
-	TMP=`echo "$var" | sed -n 's/^--with-newnuflux=\(.*\)$/\1/p'`
+  # NUFLUX #
+	TMP=`echo "$var" | sed -n 's/^--with-nuflux=\(.*\)$/\1/p'`
 	if [ "$TMP" ]; then
-		NEWNUFLUX_INCDIR="${TMP}/include";
-		NEWNUFLUX_LIBDIR="${TMP}/lib";
+		NUFLUX_INCDIR="${TMP}/include";
+		NUFLUX_LIBDIR="${TMP}/lib";
 	continue; fi
 
-	TMP=`echo "$var" | sed -n 's/^--with-newnuflux-libdir=\(.*\)$/\1/p'`
-	if [ "$TMP" ]; then NEWNUFLUX_LIBDIR="$TMP"; continue; fi
-	TMP=`echo "$var" | sed -n 's/^--with-newnuflux-incdir=\(.*\)$/\1/p'`
-	if [ "$TMP" ]; then NEWNUFLUX_INCDIR="$TMP"; continue; fi
+	TMP=`echo "$var" | sed -n 's/^--with-nuflux-libdir=\(.*\)$/\1/p'`
+	if [ "$TMP" ]; then NUFLUX_LIBDIR="$TMP"; continue; fi
+	TMP=`echo "$var" | sed -n 's/^--with-nuflux-incdir=\(.*\)$/\1/p'`
+	if [ "$TMP" ]; then NUFLUX_INCDIR="$TMP"; continue; fi
 
   # KILL #
 	echo "config.sh: Unknown or malformed option '$var'" 1>&2
@@ -336,29 +336,29 @@ if [ -z $BOOST_INCDIR ]; then
   exit 1
 fi
 
-if [ "$NEWNUFLUX_INCDIR" -a "$NEWNUFLUX_LIBDIR" ]; then
-	echo "Checking manually specified NewNuFlux..."
-	if [ -d "$NEWNUFLUX_INCDIR" \
-         -a -d "$NEWNUFLUX_LIBDIR" \
-         -a \( -e "$NEWNUFLUX_LIBDIR/libNewNuFlux.so" -o -e "$NEWNUFLUX_LIBDIR/libNewNuFlux.dylib" \) ]; then
-		NEWNUFLUX_FOUND=1
-		NEWNUFLUX_CFLAGS="-I$NEWNUFLUX_INCDIR"
-		NEWNUFLUX_LDFLAGS="-L$NEWNUFLUX_LIBDIR -lNewNuFlux"
+if [ "$NUFLUX_INCDIR" -a "$NUFLUX_LIBDIR" ]; then
+	echo "Checking manually specified nuflux..."
+	if [ -d "$NUFLUX_INCDIR" \
+         -a -d "$NUFLUX_LIBDIR" \
+         -a \( -e "$NUFLUX_LIBDIR/libnuflux.so" -o -e "$NUFLUX_LIBDIR/libnuflux.dylib" \) ]; then
+		NUFLUX_FOUND=1
+		NUFLUX_CFLAGS="-I$NUFLUX_INCDIR"
+		NUFLUX_LDFLAGS="-L$NUFLUX_LIBDIR -lnuflux"
 		if $CXX --version | grep -q "Free Software Foundation"; then
-			NEWNUFLUX_CFLAGS="$NEWNUFLUX_CFLAGS -Wno-abi"
+			NUFLUX_CFLAGS="$NUFLUX_CFLAGS -Wno-abi"
 		fi
 	else
-		echo "Warning: manually specifed NewNuFlux not found; will attempt auto detection"
+		echo "Warning: manually specifed nuflux not found; will attempt auto detection"
 	fi
 fi
 
-find_package newnuflux 1.0
+find_package nuflux 0.0.1
 
 ## CHECK THINGS ARE GOOD ##
 
 #ensure_found squids
 #ensure_found nusquids
-#ensure_found newnuflux
+#ensure_found nuflux
 ensure_found photospline
 ensure_found boost
 
@@ -388,8 +388,8 @@ PKGCONF_REQUIREMENTS=""
 if [ "$NUSQUIDS_FOUND" ]; then
 	PKGCONF_REQUIREMENTS="$PKGCONF_REQUIREMENTS nusquids >= 1.0.0"
 fi
-if [ "$NEWNUFLUX_FOUND" ]; then
-	PKGCONF_REQUIREMENTS="$PKGCONF_REQUIREMENTS newnuflux >= 1.0.0"
+if [ "$NUFLUX_FOUND" ]; then
+	PKGCONF_REQUIREMENTS="$PKGCONF_REQUIREMENTS nuflux >= 0.0.1"
 fi
 
 echo '
@@ -455,16 +455,16 @@ echo 'HEADERS += ${NUSQ_HEADERS}' >> ./Makefile
 fi
 
 echo '
-NNF_SOURCES = private/LeptonWeighter/NNFluxInterface.cpp
+NF_SOURCES = private/LeptonWeighter/NFluxInterface.cpp
 
-NNF_HEADERS = public/LeptonWeighter/NNFluxInterface.h
+NF_HEADERS = public/LeptonWeighter/NFluxInterface.h
 
-NNF_OBJECTS = $(patsubst private/LeptonWeighter/%.cpp,build/%.o,$(NNF_SOURCES))
+NF_OBJECTS = $(patsubst private/LeptonWeighter/%.cpp,build/%.o,$(NF_SOURCES))
 ' >> ./Makefile
 
 if [ "$NUSQUIDS_FOUND" ]; then
-echo 'OBJECTS += ${NNF_OBJECTS}' >> ./Makefile
-echo 'HEADERS += ${NNF_HEADERS}' >> ./Makefile
+echo 'OBJECTS += ${NF_OBJECTS}' >> ./Makefile
+echo 'HEADERS += ${NF_HEADERS}' >> ./Makefile
 fi
 
 echo '
@@ -488,8 +488,8 @@ echo "SQUIDS_LDFLAGS=$SQUIDS_LDFLAGS" >> ./Makefile
 echo "NUSQUIDS_CFLAGS=$NUSQUIDS_CFLAGS" >> ./Makefile
 echo "NUSQUIDS_LDFLAGS=$NUSQUIDS_LDFLAGS" >> ./Makefile
 
-echo "NEWNUFLUX_CFLAGS=$NEWNUFLUX_CFLAGS" >> ./Makefile
-echo "NEWNUFLUX_LDFLAGS=$NEWNUFLUX_LDFLAGS" >> ./Makefile
+echo "NUFLUX_CFLAGS=$NUFLUX_CFLAGS" >> ./Makefile
+echo "NUFLUX_LDFLAGS=$NUFLUX_LDFLAGS" >> ./Makefile
 
 echo "BOOST_CFLAGS=$BOOST_CFLAGS" >> ./Makefile
 echo "BOOST_LDFLAGS=$BOOST_LDFLAGS" >> ./Makefile
@@ -506,10 +506,10 @@ INC_LW=$(PATH_LW)/public
 LIB_LW=$(PATH_LW)/lib
 
 # FLAGS
-CFLAGS= -O3 -fPIC -I$(INC_LW) $(CVMFS_CFLAGS) $(SQUIDS_CFLAGS) $(NUSQUIDS_CFLAGS) $(PHOTOSPLINE_CFLAGS) $(NEWNUFLUX_CFLAGS) $(BOOST_CFLAGS)
+CFLAGS= -O3 -fPIC -I$(INC_LW) $(CVMFS_CFLAGS) $(SQUIDS_CFLAGS) $(NUSQUIDS_CFLAGS) $(PHOTOSPLINE_CFLAGS) $(NUFLUX_CFLAGS) $(BOOST_CFLAGS)
 
 LDFLAGS= -Wl,-rpath -Wl,$(LIB_LW) -L$(LIB_LW)
-LDFLAGS+= $(CVMFS_LDFLAGS) $(SQUIDS_LDFLAGS) $(NUSQUIDS_LDFLAGS) $(PHOTOSPLINE_LDFLAGS) $(NEWNUFLUX_LDFLAGS) $(BOOST_LDFLAGS)
+LDFLAGS+= $(CVMFS_LDFLAGS) $(SQUIDS_LDFLAGS) $(NUSQUIDS_LDFLAGS) $(PHOTOSPLINE_LDFLAGS) $(NUFLUX_LDFLAGS) $(BOOST_LDFLAGS)
 EXAMPLES_FLAGS=-I$(INC_LW) $(CXXFLAGS) $(CFLAGS)
 
 # Project files
