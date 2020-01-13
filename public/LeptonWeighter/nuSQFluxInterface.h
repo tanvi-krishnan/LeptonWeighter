@@ -22,16 +22,17 @@ template<typename BaseType = nusquids::nuSQUIDS, typename = typename std::enable
 class nuSQUIDSAtmFlux: public Flux {
     private:
         const double GeV = 1.0e9;
+        bool atmospheric_height_randomization = false;
     protected:
         nusquids::nuSQUIDSAtm<BaseType> nsqa;
     public:
         using result_type = double;
         result_type EvaluateFlux(const Event& e) const override {
           auto nusq_id = Convert_PDG_Id_To_nuSQuIDS_Id(e.primary_type);
-          return nsqa.EvalFlavor(nusq_id.first,cos(e.zenith),e.energy*GeV,nusq_id.second);
+          return nsqa.EvalFlavor(nusq_id.first,cos(e.zenith),e.energy*GeV,nusq_id.second, atmospheric_height_randomization);
         };
-        explicit nuSQUIDSAtmFlux(const std::string & nusquids_data_file_path): nsqa(nusquids::nuSQUIDSAtm<BaseType>(nusquids_data_file_path)) {};
-        explicit nuSQUIDSAtmFlux(nusquids::nuSQUIDSAtm<BaseType>&& nsqa): nsqa(std::move(nsqa)) {};
+        explicit nuSQUIDSAtmFlux(const std::string & nusquids_data_file_path, bool atmospheric_height_randomization = false): nsqa(nusquids::nuSQUIDSAtm<BaseType>(nusquids_data_file_path)), atmospheric_height_randomization(atmospheric_height_randomization) {};
+        explicit nuSQUIDSAtmFlux(nusquids::nuSQUIDSAtm<BaseType>&& nsqa, bool atmospheric_height_randomization = false): nsqa(std::move(nsqa)), atmospheric_height_randomization(atmospheric_height_randomization) {};
 };
 
 ///\class
