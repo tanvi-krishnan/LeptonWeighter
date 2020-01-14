@@ -499,7 +499,7 @@ NF_HEADERS = public/LeptonWeighter/NFluxInterface.h
 NF_OBJECTS = $(patsubst private/LeptonWeighter/%.cpp,build/%.o,$(NF_SOURCES))
 ' >> ./Makefile
 
-if [ "$NUSQUIDS_FOUND" ]; then
+if [ "$NUFLUX_FOUND" ]; then
 echo 'OBJECTS += ${NF_OBJECTS}' >> ./Makefile
 echo 'HEADERS += ${NF_HEADERS}' >> ./Makefile
 fi
