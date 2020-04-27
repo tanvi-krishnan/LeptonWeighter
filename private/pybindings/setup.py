@@ -28,7 +28,7 @@ else:
             ]
     if sys.version[0]=='3':
         libraries = [
-                'python{}m'.format(sys.version[0:3]),'boost_python3',
+                'python{}m'.format(sys.version[0:3]),'boost_python3'+sys.version.split(".")[1],
                 'LeptonWeighter',
                 ]
     elif sys.version[0]=='2':
@@ -43,6 +43,7 @@ else:
             env_prefix+'/lib/',
             env_prefix+'/lib64/',
             cvmfs_env_root + "/lib/",
+            cvmfs_env_root + "/lib64/",
             ]
 
     files = ['lepton_weighter_pybi.cpp']
