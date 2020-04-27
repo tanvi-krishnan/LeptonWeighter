@@ -54,6 +54,21 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
     //========================================================//
     // GENERATORS //
     //========================================================//
+    class_<SimulationDetails, boost::noncopyable, std::shared_ptr<SimulationDetails>>("SimulationDetails", no_init)
+        .add_property("numberOfEvents",&SimulationDetails::Get_NumberOfEvents)
+        .add_property("year",&SimulationDetails::Get_Year)
+        .add_property("final_state_particle_0",&SimulationDetails::Get_ParticleType0)
+        .add_property("final_state_particle_1",&SimulationDetails::Get_ParticleType1)
+        .add_property("azimuthMin",&SimulationDetails::Get_MinAzimuth)
+        .add_property("azimuthMax",&SimulationDetails::Get_MaxAzimuth)
+        .add_property("zenithMin",&SimulationDetails::Get_MinZenith)
+        .add_property("zenithMax",&SimulationDetails::Get_MaxZenith)
+        .add_property("energyMin",&SimulationDetails::Get_MinEnergy)
+        .add_property("energyMax",&SimulationDetails::Get_MaxEnergy)
+        .add_property("powerlawIndex",&SimulationDetails::Get_PowerLawIndex)
+        .add_property("differential_cross_section_spline",&SimulationDetails::Get_DifferentialSpline)
+        .add_property("total_cross_section_spline",&SimulationDetails::Get_TotalSpline)
+        ;
 
     // abstract generator
     class_<Generator, std::shared_ptr<Generator>, boost::noncopyable>("Generator",no_init)
@@ -62,17 +77,19 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
         ;
 
     // range generator
-    class_<RangeSimulationDetails, boost::noncopyable, std::shared_ptr<RangeSimulationDetails>>("RangeSimulationDetails",init<std::string>(args("Path to configuration file (.lic)")))
+    class_<RangeSimulationDetails, bases<SimulationDetails>, boost::noncopyable, std::shared_ptr<RangeSimulationDetails>>("RangeSimulationDetails",init<std::string>(args("Path to configuration file (.lic)")))
         ;
     class_<RangeGenerator, boost::noncopyable, std::shared_ptr<RangeGenerator>>("RangeGenerator",init<RangeSimulationDetails>(args("Configuration structure")))
+        .add_property("range_sim_details",&RangeGenerator::GetSimulationDetails)
         ;
 
     implicitly_convertible< std::shared_ptr<RangeGenerator>, std::shared_ptr<Generator> >();
 
     // volume generator
-    class_<VolumeSimulationDetails, boost::noncopyable, std::shared_ptr<VolumeSimulationDetails>>("VolumeSimulationDetails",init<std::string>(args("Path to configuration file (.lic)")))
+    class_<VolumeSimulationDetails, bases<SimulationDetails>, boost::noncopyable, std::shared_ptr<VolumeSimulationDetails>>("VolumeSimulationDetails",init<std::string>(args("Path to configuration file (.lic)")))
         ;
     class_<VolumeGenerator, boost::noncopyable, std::shared_ptr<VolumeGenerator>>("VolumeGenerator",init<VolumeSimulationDetails>(args("Configuration structure")))
+        .add_property("volume_sim_details",&VolumeGenerator::GetVolumeSimulationDetails)
         ;
 
     implicitly_convertible< std::shared_ptr<VolumeGenerator>, std::shared_ptr<Generator> >();
