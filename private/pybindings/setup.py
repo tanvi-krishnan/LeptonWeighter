@@ -22,7 +22,6 @@ if sys.platform == 'win32' or sys.platform == 'win64':
 else:
     include_dirs = [
             '../../public/',
-            '/usr/local/Cellar/python/2.7.9/Frameworks/Python.framework/Versions/2.7/lib/python2.7/../../include/python2.7',
             numpy.get_include(),
             env_prefix+'/include',
             cvmfs_env_root + "/include/",
@@ -41,8 +40,6 @@ else:
         raise Exception("Python version {} not supported".format(sys.version[0]))
     library_dirs = [
             '../lib/',
-            '/usr/local/Cellar/python/2.7.9/Frameworks/Python.framework/Versions/2.7/lib/python2.7',
-            '/usr/local/Cellar/python/2.7.9/Frameworks/Python.framework/Versions/2.7/lib/python2.7/..',
             env_prefix+'/lib/',
             env_prefix+'/lib64/',
             cvmfs_env_root + "/lib/",
