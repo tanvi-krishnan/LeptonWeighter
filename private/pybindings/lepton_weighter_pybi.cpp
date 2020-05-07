@@ -171,6 +171,9 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
         .def("add_generator",&Weighter::add_generator)
         .def("add_flux",&Weighter::add_flux)
         .def("get_oneweight",&Weighter::get_oneweight)
+#ifdef NUSQUIDS_CFLAGS
+        .def("get_effective_tau_weight",&Weighter::get_effective_tau_weight)
+#endif
         ;
 
     //========================================================//

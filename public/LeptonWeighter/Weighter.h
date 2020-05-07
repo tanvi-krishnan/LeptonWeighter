@@ -9,6 +9,11 @@
 #include "Event.h"
 #include "Generator.h"
 
+#ifdef NUSQUIDS_FOUND
+#include <nuSQuIDS/taudecay.h>
+#include <nuSQuIDS/AdaptiveQuad.h>
+#endif
+
 namespace LW {
 
 ///\class
@@ -83,6 +88,10 @@ class Weighter: public MetaWeighter<Weighter>{
         double operator()(Event & e) const {return weight(e);}
         // compatibility mode
         double get_oneweight(Event & e) const;
+#ifdef NUSQUIDS_CFLAGS
+        // effective tau weight
+        double get_effective_tau_weight(Event & e) const;
+#endif
 };
 
 } // namespace LW
