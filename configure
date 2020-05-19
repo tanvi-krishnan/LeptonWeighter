@@ -510,15 +510,18 @@ EXAMPLES = resources/example/main.exe \
 NUSQ_EXAMPLES = resources/example/main_with_nusquids.exe
 ' >> ./Makefile
 
-if [ "$NUSQUIDS_FOUND" ]; then
-echo 'EXAMPLES += ${NUSQ_EXAMPLES}' >> ./Makefile
-fi
-
 echo '
 CXXFLAGS = -std=c++11 -O3
 
 # Directories
 '  >> ./Makefile
+
+if [ "$NUSQUIDS_FOUND" ]; then
+echo 'EXAMPLES += ${NUSQ_EXAMPLES}' >> ./Makefile
+echo 'CXXFLAGS += -DNUS_FOUND' >> ./Makefile
+fi
+
+
 echo "SQUIDS_CFLAGS=$SQUIDS_CFLAGS" >> ./Makefile
 echo "SQUIDS_LDFLAGS=$SQUIDS_LDFLAGS" >> ./Makefile
 

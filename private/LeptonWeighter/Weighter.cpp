@@ -28,7 +28,7 @@ double Weighter::get_oneweight(Event& e) const{
     return (*cs)(e)/generation_weight;
 }
 
-#ifdef NUSQUIDS_CFLAGS
+#if defined(NUS_FOUND)
 double Weighter::get_effective_tau_weight(Event & e) const{
     // needs to be a muon-neutrino simulation
     //std::cout << "Begin eff. weight calculation" << std::endl;

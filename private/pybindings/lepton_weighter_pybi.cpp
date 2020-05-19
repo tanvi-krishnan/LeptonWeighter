@@ -4,6 +4,7 @@
 #include <boost/python/overloads.hpp>
 #include <LeptonWeighter/Event.h>
 #include <LeptonWeighter/ParticleType.h>
+#define NUS_FOUND
 #include <LeptonWeighter/Weighter.h>
 #include <LeptonWeighter/nuSQFluxInterface.h>
 #include "container_conversions.h"
@@ -171,9 +172,7 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
         .def("add_generator",&Weighter::add_generator)
         .def("add_flux",&Weighter::add_flux)
         .def("get_oneweight",&Weighter::get_oneweight)
-#ifdef NUSQUIDS_CFLAGS
         .def("get_effective_tau_weight",&Weighter::get_effective_tau_weight)
-#endif
         ;
 
     //========================================================//
@@ -181,7 +180,6 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
     //========================================================//
 
     def("MakeGeneratorsFromLICFile",LW::MakeGeneratorsFromLICFile);
-    def("MakeGeneratorsFromH5File",LW::MakeGeneratorsFromH5File);
 
     //========================================================//
     // VECTOR CONVERSIONS //
