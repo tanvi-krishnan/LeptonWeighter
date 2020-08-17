@@ -149,7 +149,7 @@ class Generator: public MetaWeighter<Generator> {
         virtual double probability_pos(double x, double y, double z,double zenith, double azimuth) const = 0;
         virtual double probability_interaction(double e, double y) const;
         virtual double probability_interaction(double e, double x, double y) const;
-        virtual double get_eff_height(double x, double y, double z, double zenith, double azimuth) const;
+        virtual double get_eff_height(double x, double y, double z, double zenith, double azimuth) const = 0;
         virtual double number_of_targets(Event& e) const = 0;
     public:
         ///\brief Constructor
