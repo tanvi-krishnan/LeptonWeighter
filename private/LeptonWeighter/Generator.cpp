@@ -31,9 +31,9 @@ double Generator::probability(Event& e) const {
 #endif
     if(p==0)
         return 0;
-    p *= probability_pos(e.x,e.y,e.z);
+    p *= probability_pos(e.x,e.y,e.z, e.zenith, e.azimuth);
 #ifdef DEBUGPROBABILITY
-    std::cout << "ppos " << probability_pos(e.x,e.y,e.z) << std::endl;
+    std::cout << "ppos " << probability_pos(e.x,e.y,e.z, e.zenith, e.azimuth) << std::endl;
 #endif
     if(p==0)
         return 0;
@@ -209,15 +209,110 @@ VolumeSimulationDetails VolumeSimulationDetails::MakeFromVolumeInjectorConfigura
             vic.azimuthMin,vic.azimuthMax,vic.zenithMin,vic.zenithMax,vic.energyMin,vic.energyMax,vic.powerlawIndex);
 }
 
-double VolumeGenerator::probability_pos(double x, double y, double z) const {
-    if(z>vol_sim_details.Get_CylinderHeight())
+double VolumeGenerator::get_eff_height(double x, double y, double z, double zenith, double azimuth) const {
+    /*
+        So this function finds the length of a chord passing through (x,y,z) at an angle (zenith, azimuth). 
+        It gets the intersections with the cylinder, and then calculates the distance between those intersections
+
+        Uses the same get-cylinder-intersection algorithm as LeptonInjector 
+    */
+    double r = vol_sim_details.Get_CylinderRadius();
+    double cz1 = -1*vol_sim_details.Get_CylinderHeight()/2;
+    double cz2 = -1*cz1;
+
+    double nx = cos(azimuth)*sin(zenith);
+    double ny = sin(azimuth)*sin(zenith);
+    double nz = cos(zenith);
+
+    double nx2 = nx*nx;
+    double ny2 = ny*ny;
+    double nr2 = nx2 + ny2;
+    double n_sum = -(nx*x + ny*y);
+    double r0_2 = x*x+y*y;
+    
+    if(nx==0.0 && ny==0.0){
+        assert(nz!=0.0);
+        return( vol_sim_details.Get_CylinderHeight() );
+    }else{
+        double root = sqrt(n_sum*n_sum - nr2*(r0_2-r*r));
+
+        double sol_1 = (n_sum - root)/nr2;
+        double sol_2 = (n_sum + root)/nr2;
+        
+        // positions corresponding to above solutions 
+        double x1 = x + nx*sol_1;
+        double y1 = y + ny*sol_1;
+        double z1 = z + nz*sol_1;
+        double x2 = x + nx*sol_2;
+        double y2 = y + ny*sol_2;
+        double z2 = z + nz*sol_2;
+
+        // check if the solutions are within the z boundaries 
+        bool b1_lower = z1<cz1;
+        bool b2_lower = z2<cz1;
+        bool b1_upper = z1>cz2;
+        bool b2_upper = z2>cz2;
+       
+        bool bb_lower = b1_lower or b2_lower;
+        bool bb_upper = b1_upper or b2_upper;
+        bool bb = bb_lower or bb_upper;
+
+        // these are the cyliner intersection points. Tentative solutions 
+        double p1[] = {x1,y1,z1};
+        double p2[] = {x2,y2,z2};
+        // replace with encap intersections if necessary
+        if (bb){
+            double nr = sqrt(nr2);
+            double r0 = sqrt(r0_2);
+            if (bb_lower){
+                double t1 = (cz1-z)/nz;
+                double xx = x + nx*t1;
+                double yy = y + ny*t1;
+                double zz = cz1;
+                if (b1_lower){
+                    p1[0] = xx;
+                    p1[1] = yy;
+                    p1[2] = zz;
+                }else{
+                    p2[0] = xx;
+                    p2[1] = yy;
+                    p2[2] = zz;
+                }
+            }
+            if (bb_upper){
+                double t2 = (cz2-z)/nz;
+                double xx = x + nx*t2;
+                double yy = y + ny*t2;
+                double zz = cz2;
+                if (b1_upper){
+                    p1[0] = xx;
+                    p1[1] = yy;
+                    p1[2] = zz;
+                }else{
+                    p2[0] = xx;
+                    p2[1] = yy;
+                    p2[2] = zz;
+                }
+                   
+            }
+
+        }// end if bb
+    
+    double dist_sq = pow(p2[0]-p1[0],2) + pow(p2[1]-p1[1],2) + pow(p2[2]-p1[2],2);
+    return sqrt(dist_sq); 
+    }//end big if
+
+}//end function
+
+double VolumeGenerator::probability_pos(double x, double y, double z, double zenith, double azimuth) const {
+    if(abs(z)>vol_sim_details.Get_CylinderHeight()/2)
         return 0;
 
     double r = sqrt(x*x + y*y);
     if(r>vol_sim_details.Get_CylinderRadius())
         return 0;
 
-    return 1/(1e4*M_PI*vol_sim_details.Get_CylinderRadius()*vol_sim_details.Get_CylinderRadius()*vol_sim_details.Get_CylinderHeight());
+    return get_eff_height(x,y,z,zenith,azimuth)/(1e4*M_PI*vol_sim_details.Get_CylinderRadius()*vol_sim_details.Get_CylinderRadius()*vol_sim_details.Get_CylinderHeight());
 }
 
 double RangeGenerator::number_of_targets(Event& e) const {

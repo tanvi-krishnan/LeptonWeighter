@@ -146,9 +146,10 @@ class Generator: public MetaWeighter<Generator> {
         virtual double probability_dir(double zenith, double azimuth) const;
         virtual double probability_final_state(ParticleType final_state_particle_0,ParticleType primary_state_particle_1) const;
         virtual double probability_area() const = 0;
-        virtual double probability_pos(double x, double y, double z) const = 0;
+        virtual double probability_pos(double x, double y, double z,double zenith, double azimuth) const = 0;
         virtual double probability_interaction(double e, double y) const;
         virtual double probability_interaction(double e, double x, double y) const;
+        virtual double get_eff_height(double x, double y, double z, double zenith, double azimuth) const;
         virtual double number_of_targets(Event& e) const = 0;
     public:
         ///\brief Constructor
@@ -164,7 +165,8 @@ class RangeGenerator: public Generator {
     const RangeSimulationDetails range_sim_details;
     protected:
     double probability_area() const override;
-    double probability_pos(double x, double y, double z) const override {return 1;}
+    double probability_pos(double x, double y, double z, double zenith, double azimuth) const override {return 1;}
+    double get_eff_height(double x, double y, double z, double zenith, double azimuth) const override {return 1;}
     virtual double number_of_targets(Event& e) const override;
     public:
     ///\brief Constructor
@@ -178,7 +180,8 @@ class VolumeGenerator: public Generator {
     const VolumeSimulationDetails vol_sim_details;
     protected:
     double probability_area() const override {return 1;}
-    double probability_pos(double x, double y, double z) const override;
+    double probability_pos(double x, double y, double z, double zenith, double azimuth) const override;
+    double get_eff_height(double x, double y, double z, double zenith, double azimuth) const override;
     virtual double number_of_targets(Event& e) const override;
     public:
     ///\brief Constructor
