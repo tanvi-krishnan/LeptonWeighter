@@ -64,6 +64,9 @@ try_find_photospline(){
 
 try_find_boost(){
 	GUESS_DIR=$1
+	PYTHONVERSIONSIMPLE=`${PYTHON_EXE} -c 'import sys; print(str(sys.version_info.major)+"."+str(sys.version_info.minor))'`
+  PYTHONVERSIONSIMPLE=${PYTHONVERSIONSIMPLE//.}
+  PYV=${PYTHONVERSIONSIMPLE}
 	PKG=boost
 	VAR_PREFIX=`echo $PKG | tr [:lower:] [:upper:]`
 	TMP_FOUND=`eval echo "$"${VAR_PREFIX}_FOUND`
@@ -71,12 +74,13 @@ try_find_boost(){
 	echo "Looking for $PKG in $GUESS_DIR..."
 	POSSIBLE_BOOST_LIBDIRS="${GUESS_DIR}/lib ${GUESS_DIR}/lib64 ${GUESS_DIR}/lib/x86_64-linux-gnu"
 	POSSIBLE_BOOST_INCDIRS="${GUESS_DIR}/include"
+  echo ${PYV}
 	for BOOST_LIBDIR in $POSSIBLE_BOOST_LIBDIRS; do
-		if [ -d $BOOST_LIBDIR -a \( -e $BOOST_LIBDIR/libboost_python.a -o -e $BOOST_LIBDIR/libboost_python.so \) ]; then
+		if [ -d $BOOST_LIBDIR -a \( -e $BOOST_LIBDIR/libboost_python${PYV}.a -o -e $BOOST_LIBDIR/libboost_python${PYV}.so \) ]; then
 			break
 		fi
 	done
-	if [ ! -d $BOOST_LIBDIR -o ! \( -e $BOOST_LIBDIR/libboost_python.a -o -e $BOOST_LIBDIR/libboost_python.so \) ]; then
+	if [ ! -d $BOOST_LIBDIR -o ! \( -e $BOOST_LIBDIR/libboost_python${PYV}.a -o -e $BOOST_LIBDIR/libboost_python${PYV}.so \) ]; then
 		echo " Unable to locate the boost_python libray in $GUESS_DIR"
 		return
 	fi
@@ -343,12 +347,15 @@ fi
 
 try_find_photospline
 
+PYTHONVERSIONSIMPLE=`${PYTHON_EXE} -c 'import sys; print(str(sys.version_info.major)+"."+str(sys.version_info.minor))'`
+PYTHONVERSIONSIMPLE=${PYTHONVERSIONSIMPLE//.}
+
 if [ "$BOOST_INCDIR" -a "$BOOST_LIBDIR" ]; then
   echo "Checking manually specified boost..."
   if [ -d "$BOOST_INCDIR" \
     -a -d "$BOOST_LIBDIR" \
     -a -e "$BOOST_INCDIR/boost/python.hpp" \
-    -a -e "$BOOST_LIBDIR/libboost_python.a" ]; then
+    -a -e "$BOOST_LIBDIR/libboost_python${PYTHONVERSIONSIMPLE}.a" ]; then
     BOOST_FOUND=1
     BOOST_CFLAGS="-I$BOOST_INCDIR"
     BOOST_LDFLAGS="-Wl,-rpath -Wl,${BOOST_LIBDIR} -L$BOOST_LIBDIR "

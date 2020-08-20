@@ -147,8 +147,8 @@ class Generator: public MetaWeighter<Generator> {
         virtual double probability_final_state(ParticleType final_state_particle_0,ParticleType primary_state_particle_1) const;
         virtual double probability_area() const = 0;
         virtual double probability_pos(double x, double y, double z,double zenith, double azimuth) const = 0;
-        virtual double probability_interaction(double e, double y) const;
-        virtual double probability_interaction(double e, double x, double y) const;
+        virtual double probability_interaction(double e, double y, double number_of_targets) const;
+        virtual double probability_interaction(double e, double x, double y, double number_of_targets) const;
         virtual double get_eff_height(double x, double y, double z, double zenith, double azimuth) const = 0;
         virtual double number_of_targets(Event& e) const = 0;
     public:

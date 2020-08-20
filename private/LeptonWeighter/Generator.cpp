@@ -42,7 +42,7 @@ double Generator::probability(Event& e) const {
     std::cout << "pint " << probability_interaction(e.energy,e.interaction_x,e.interaction_y) << std::endl;
 #endif
     return p*probability_stat()*probability_final_state(e.final_state_particle_0,e.final_state_particle_1)*
-        probability_interaction(e.energy,e.interaction_y)*probability_interaction(e.energy,e.interaction_x,e.interaction_y)/number_of_targets(e);
+        probability_interaction(e.energy,e.interaction_y,number_of_targets(e))*probability_interaction(e.energy,e.interaction_x,e.interaction_y,number_of_targets(e));
 }
 
 double Generator::probability_final_state(ParticleType final_state_particle_0_,ParticleType final_state_particle_1_) const{
@@ -82,7 +82,7 @@ double Generator::probability_stat() const {
     return (sim_details.Get_NumberOfEvents());
 }
 
-double Generator::probability_interaction(double enu, double y) const {
+double Generator::probability_interaction(double enu, double y,double number_of_events) const {
   return 1.;
   /*
    *  EXPERIMENTAL GLASHOW SAMPLER -- NOT USED
@@ -103,7 +103,7 @@ double Generator::probability_interaction(double enu, double y) const {
   */
 }
 
-double Generator::probability_interaction(double enu, double x,double y) const {
+double Generator::probability_interaction(double enu, double x,double y,double number_of_targets) const {
     // DIS cross sections assumes all flavors to be equal in cross sections
     int centerbuffer[3];
     double xx[3];
@@ -122,7 +122,7 @@ double Generator::probability_interaction(double enu, double x,double y) const {
     else
         throw std::runtime_error("Could not evaluate total neutrino cross section spline.");
 
-    return differential_xs/total_xs;
+    return 1. - exp(-differential_xs/(total_xs*number_of_targets));
 }
 
 double RangeGenerator::probability_area() const {
