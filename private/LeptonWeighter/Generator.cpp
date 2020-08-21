@@ -122,7 +122,7 @@ double Generator::probability_interaction(double enu, double x,double y,double n
     else
         throw std::runtime_error("Could not evaluate total neutrino cross section spline.");
 
-    return 1. - exp(-differential_xs/(total_xs*number_of_targets));
+    return differential_xs/(1. - exp(-total_xs*number_of_targets));
 }
 
 double RangeGenerator::probability_area() const {
