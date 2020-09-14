@@ -25,6 +25,7 @@ else:
             numpy.get_include(),
             env_prefix+'/include',
             cvmfs_env_root + "/include/",
+            cvmfs_env_root + "/include/hdf5/serial/",
             ]
     if sys.version[0]=='3':
         libraries = [
