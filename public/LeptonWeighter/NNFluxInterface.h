@@ -5,7 +5,6 @@
 #include <LeptonWeighter/Flux.h>
 #include <LeptonWeighter/Utils.h>
 #include <NewNuFlux/NewNuFlux.h>
-#include <boost/crc.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace LW {
