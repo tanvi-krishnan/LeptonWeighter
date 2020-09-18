@@ -3,26 +3,22 @@
 
 #include <map>
 #include <iostream>
-#include <boost/detail/endian.hpp>
 #include <memory>
 #include <vector>
 #include <LeptonWeighter/ParticleType.h>
 
 namespace LW {
 
-// The sole reason of this magic adapter is
-// because overloading is cool. And the reading
-// of the endians should happen through overloads.
-// Thus in order to avoid to call the usual istream >> overload
-// but our cool one, we wrap the type in this magic adapter.
+///A wrapper type which ensures that data read through it will be converted from
+///little endian to the native endianness
 template<typename T>
-struct magic_adapter{
+struct endianness_adapter{
     T& t;
-    magic_adapter(T& t):t(t){}
+    endianness_adapter(T& t):t(t){}
 };
 
 template<typename T>
-magic_adapter<T> little_endian(T& t){ return magic_adapter<T>(t);}
+endianness_adapter<T> little_endian(T& t){ return endianness_adapter<T>(t);}
 
 // This function reads input data, assumed to be little endian, and performs
 // byte swapping if necessary.
@@ -31,12 +27,12 @@ magic_adapter<T> little_endian(T& t){ return magic_adapter<T>(t);}
 std::istream& endianRead(std::istream& is, char* data, size_t dataSize);
 
 template<typename T>
-std::istream& operator>>(std::istream& is, magic_adapter<T>&& e){
+std::istream& operator>>(std::istream& is, endianness_adapter<T>&& e){
     return(endianRead(is,(char*)&e.t,sizeof(T)));
 }
 
-std::istream& operator>>(std::istream& is, magic_adapter<std::vector<char>>&& e);
-std::istream& operator>>(std::istream& is, magic_adapter<std::string>&& e);
+std::istream& operator>>(std::istream& is, endianness_adapter<std::vector<char>>&& e);
+std::istream& operator>>(std::istream& is, endianness_adapter<std::string>&& e);
 
 struct BlockHeader{
     uint64_t block_length;
@@ -44,7 +40,7 @@ struct BlockHeader{
     uint8_t block_version;
 };
 
-std::istream& operator>>(std::istream& is, magic_adapter<BlockHeader>&& e);
+std::istream& operator>>(std::istream& is, endianness_adapter<BlockHeader>&& e);
 std::ostream& operator<<(std::ostream& os, const BlockHeader& e);
 
 struct EnumDefBlock{
@@ -52,7 +48,7 @@ struct EnumDefBlock{
     std::map<std::string,int64_t> enum_map;
 };
 
-std::istream& operator>>(std::istream& is, magic_adapter<EnumDefBlock>&& e);
+std::istream& operator>>(std::istream& is, endianness_adapter<EnumDefBlock>&& e);
 std::ostream& operator<<(std::ostream& os, const EnumDefBlock& e);
 
 struct RangedInjectionConfiguration {
@@ -72,7 +68,7 @@ struct RangedInjectionConfiguration {
     double injectionCap;
 };
 
-std::istream& operator>>(std::istream& is, magic_adapter<RangedInjectionConfiguration>&& e);
+std::istream& operator>>(std::istream& is, endianness_adapter<RangedInjectionConfiguration>&& e);
 std::ostream& operator<<(std::ostream& os, RangedInjectionConfiguration& e);
 
 struct VolumeInjectionConfiguration{
@@ -92,7 +88,7 @@ struct VolumeInjectionConfiguration{
     double cylinderHeight;
 };
 
-std::istream& operator>>(std::istream& is, magic_adapter<VolumeInjectionConfiguration>&& e);
+std::istream& operator>>(std::istream& is, endianness_adapter<VolumeInjectionConfiguration>&& e);
 std::ostream& operator<<(std::ostream& os, VolumeInjectionConfiguration& e);
 
 } // namespace LW

@@ -1,36 +1,43 @@
 #include <LeptonWeighter/LeptonInjectorConfigReader.h>
 
+namespace{
+bool isBigEndian(){
+	static_assert(2*sizeof(char)==sizeof(uint16_t),
+	"Endianness detection works only when sizeof(char) if half of sizeof(uint16_t)");
+	const static uint16_t testValue=0x0001;
+	const static char* readPtr=(const char*)&testValue;
+	const static bool isBig=(readPtr==0);
+	return isBig;
+}
+}
+
 namespace LW {
 
 std::istream& endianRead(std::istream& is, char* data, size_t dataSize){
     is.read(data,dataSize);
-#if defined(BOOST_LITTLE_ENDIAN)
-    // do nothing, input data should have been little endian already
-#elif defined(BOOST_BIG_ENDIAN)
-    std::reverse(data,data+dataSize);
-#else
-#error Malo. Malo.
-#endif
+    //assume that input data is little endian. Reverse it if we are big endian
+    if(isBigEndian())
+        std::reverse(data,data+dataSize);
     if(!is.good())
         throw std::runtime_error("LWError: LeptonInjector little endian parsing failed.");
     return is;
 }
 
-std::istream& operator>>(std::istream& is, magic_adapter<std::vector<char>>&& e){
+std::istream& operator>>(std::istream& is, endianness_adapter<std::vector<char>>&& e){
     size_t size;
     is >> little_endian(size);
     e.t.resize(size);
     return(endianRead(is,&e.t[0],e.t.size()));
 }
 
-std::istream& operator>>(std::istream& is, magic_adapter<std::string>&& e){
+std::istream& operator>>(std::istream& is, endianness_adapter<std::string>&& e){
     size_t size;
     is >> little_endian(size);
     e.t.resize(size);
     return(endianRead(is,(char*)&e.t[0],e.t.size()));
 }
 
-std::istream& operator>>(std::istream& is, magic_adapter<BlockHeader>&& e){
+std::istream& operator>>(std::istream& is, endianness_adapter<BlockHeader>&& e){
     is >> little_endian(e.t.block_length);
     is >> little_endian(e.t.block_name);
     is >> little_endian(e.t.block_version);
@@ -42,7 +49,7 @@ std::ostream& operator<<(std::ostream& os, const BlockHeader& e){
     return os;
 }
 
-std::istream& operator>>(std::istream& is, magic_adapter<EnumDefBlock>&& e){
+std::istream& operator>>(std::istream& is, endianness_adapter<EnumDefBlock>&& e){
     is >> little_endian(e.t.enum_name);
     uint32_t size;
     is >> little_endian(size);
@@ -64,7 +71,7 @@ std::ostream& operator<<(std::ostream& os, const EnumDefBlock& e){
     return os;
 }
 
-std::istream& operator>>(std::istream& is, magic_adapter<RangedInjectionConfiguration>&& e){
+std::istream& operator>>(std::istream& is, endianness_adapter<RangedInjectionConfiguration>&& e){
     is >> little_endian(e.t.number_of_events);
     is >> little_endian(e.t.energyMin);
     is >> little_endian(e.t.energyMax);
@@ -101,7 +108,7 @@ std::ostream& operator<<(std::ostream& os, RangedInjectionConfiguration& e){
     return os;
 }
 
-std::istream& operator>>(std::istream& is, magic_adapter<VolumeInjectionConfiguration>&& e){
+std::istream& operator>>(std::istream& is, endianness_adapter<VolumeInjectionConfiguration>&& e){
     is >> little_endian(e.t.number_of_events);
     is >> little_endian(e.t.energyMin);
     is >> little_endian(e.t.energyMax);
