@@ -1,4 +1,5 @@
 #include <LeptonWeighter/LeptonInjectorConfigReader.h>
+#include <algorithm>
 
 namespace{
 bool isBigEndian(){
