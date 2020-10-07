@@ -29,7 +29,7 @@ double Weighter::get_oneweight(Event& e) const{
 }
 
 #if defined(NUS_FOUND)
-double Weighter::get_effective_tau_weight(Event & e) const{
+double Weighter::get_effective_tau_oneweight(Event & e) const{
     // needs to be a muon-neutrino simulation
     //std::cout << "Begin eff. weight calculation" << std::endl;
     if(not(e.primary_type == ParticleType::NuMu or e.primary_type == ParticleType::NuMuBar)){
@@ -55,31 +55,43 @@ double Weighter::get_effective_tau_weight(Event & e) const{
     e_tau.primary_type = (e.primary_type == ParticleType::NuMu) ? ParticleType::NuTau : ParticleType::NuTauBar;
     e_tau.final_state_particle_0 = (e.primary_type == ParticleType::MuMinus) ? ParticleType::TauMinus : ParticleType::TauPlus;
     e_tau.final_state_particle_1 = ParticleType::Hadrons;
-    double flux=0;
-    for(auto f : fv){
-        flux += (*f)(e);
-    }
-    double y_max = 1.0;
+
+    double y_max = e_tau.interaction_y;
     double y_min = 0.0;
     AdaptiveQuad::Options intOpt;
     nusquids::TauDecaySpectra tds;
-    double int_precision = 1.e-6;
+    double int_precision = 1.e-8;
     double eff_xs = AdaptiveQuad::integrate([&](double y_tau){
                       double Etau = (1.-y_tau)*e_tau.energy;
                       double Emu = (1.-e_tau.interaction_y)*e_tau.energy;
-                      if(Emu > Etau)
+                      if(Emu >= Etau)
+                        return 0.0;
+                      if(y_tau==0.0)
                         return 0.0;
                       double dxs = cs->DoubleDifferentialCrossSection(e_tau.primary_type, e_tau.final_state_particle_0, e_tau.final_state_particle_1,
                                                                       e_tau.energy, e_tau.interaction_x, y_tau);
                       double dndz = tds.TauDecayToLepton(Etau,Emu)*tds.GetTauToLeptonBranchingRatio();
+                      if(dxs*dndz <0) return 0.0;
                       return dxs*dndz;
                     },
                     y_min, y_max, int_precision, &intOpt);
     if(intOpt.outOfTolerance){
         throw std::runtime_error("Integral when computing effective tau cross section did not achieve the requested accuracy.");
     }
-    //std::cout << flux << " " << eff_xs << " " << generation_weight << std::endl;
-    return flux*eff_xs/generation_weight;
+    if (eff_xs <0.0)
+      return(0.0);
+    return eff_xs/generation_weight;
+}
+
+double Weighter::get_effective_tau_weight(Event & e) const{
+  double eff_tau_oneweight = get_effective_tau_oneweight(e);
+  if(eff_tau_oneweight ==0)
+    return 0.0;
+  double flux=0.0;
+  for(auto f : fv){
+    flux += (*f)(e);
+  }
+  return flux*eff_tau_oneweight;
 }
 
 #endif
