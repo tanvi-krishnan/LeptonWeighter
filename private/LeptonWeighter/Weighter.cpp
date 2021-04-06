@@ -84,13 +84,24 @@ double Weighter::get_effective_tau_oneweight(Event & e) const{
 }
 
 double Weighter::get_effective_tau_weight(Event & e) const{
+  if(not(e.primary_type == ParticleType::NuMu or e.primary_type == ParticleType::NuMuBar)){
+      throw std::runtime_error("The effective tau weight assumes muon plus shower events as input.");
+  }
   double eff_tau_oneweight = get_effective_tau_oneweight(e);
   if(eff_tau_oneweight ==0)
     return 0.0;
+  // here we temporary change the primaryType to tau to get the right flux
+  auto original_primary_type = e.primary_type;
+  if(e.primary_type == ParticleType::NuMu)
+    e.primary_type = ParticleType::NuTau;
+  if(e.primary_type == ParticleType::NuMuBar)
+    e.primary_type = ParticleType::NuTauBar;
   double flux=0.0;
   for(auto f : fv){
     flux += (*f)(e);
   }
+  // set things back
+  e.primary_type = original_primary_type;
   return flux*eff_tau_oneweight;
 }
 
