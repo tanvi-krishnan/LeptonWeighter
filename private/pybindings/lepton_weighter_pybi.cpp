@@ -173,6 +173,7 @@ BOOST_PYTHON_MODULE(LeptonWeighter)
         .def("add_flux",&Weighter::add_flux)
         .def("get_oneweight",&Weighter::get_oneweight)
         .def("get_effective_tau_weight",&Weighter::get_effective_tau_weight)
+        .def("get_effective_tau_oneweight",&Weighter::get_effective_tau_oneweight)
         ;
 
     //========================================================//
