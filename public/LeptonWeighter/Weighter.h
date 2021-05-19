@@ -82,7 +82,7 @@ class Weighter: public MetaWeighter<Weighter>{
                 throw std::runtime_error("Weighter::set_generators: Vector array null length");
             gv=gv_in;
         }
-        double get_flux(Event & e) const;
+        double get_total_flux(Event & e) const;
         // most important function of all
         double weight(Event & e) const;
         // most important function of all so you can call it in two ways

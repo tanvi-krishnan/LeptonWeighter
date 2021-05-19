@@ -4,7 +4,7 @@
 
 namespace LW {
 
-double Weighter::get_flux(Event& e) const{
+double Weighter::get_total_flux(Event& e) const{
     double flux=0;
     for(auto f : fv)
         flux += (*f)(e);
