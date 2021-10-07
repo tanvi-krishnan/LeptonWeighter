@@ -79,7 +79,8 @@ double Weighter::get_effective_tau_oneweight(Event & e) const{
                                                                       e_tau.energy, e_tau.interaction_x, y_tau);
                       double dndz = tds.TauDecayToLepton(Etau,Emu)*tds.GetTauToLeptonBranchingRatio();
                       if(dxs*dndz <0) return 0.0;
-                      return dxs*dndz;
+                      double dzdy = e_tau.energy/Etau;
+                      return dxs*dndz*dzdy;
                     },
                     y_min, y_max, int_precision, &intOpt);
     if(intOpt.outOfTolerance){
