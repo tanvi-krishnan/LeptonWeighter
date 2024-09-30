@@ -89,11 +89,11 @@ class Weighter: public MetaWeighter<Weighter>{
         double operator()(Event & e) const {return weight(e);}
         // compatibility mode
         double get_oneweight(Event & e) const;
-#if defined(NUS_FOUND)
+
         // effective tau weight
         double get_effective_tau_oneweight(Event & e) const;
         double get_effective_tau_weight(Event & e) const;
-#endif
+
 };
 
 } // namespace LW
