@@ -35,7 +35,6 @@ double Weighter::get_oneweight(Event& e) const{
     return (*cs)(e)/generation_weight;
 }
 
-#if defined(NUS_FOUND)
 double Weighter::get_effective_tau_oneweight(Event & e) const{
     // needs to be a muon-neutrino simulation
     //std::cout << "Begin eff. weight calculation" << std::endl;
@@ -112,8 +111,6 @@ double Weighter::get_effective_tau_weight(Event & e) const{
   e.primary_type = original_primary_type;
   return flux*eff_tau_oneweight;
 }
-
-#endif
 
 } // namespace LW
 
